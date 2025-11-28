@@ -11,7 +11,12 @@ import java.util.Set;
 public class ChannelGrup extends Channel {
     protected Map<Integer, Set<Integer>> listAkses = new HashMap<>();
     private String roles[] = { "Owner", "Manager", "Editor", "Editor Limited", "Subtitle Editor", "Viewer" };
-    
+    // 1 = Pemilik
+    // 2 = Manajer
+    // 3 = Editor
+    // 4 = Editor Limited
+    // 5 = Subtitle editor
+    // 6 = viewer
 
     public ChannelGrup(int idKanal, String channelName, String channelDescription, Date tanggalPembuatanKanal) {
         super(idKanal, channelName, channelDescription, tanggalPembuatanKanal);
@@ -37,7 +42,17 @@ public class ChannelGrup extends Channel {
         return jmlh;
     }
 
-    
+    @Override
+    public void exportChannel() throws SQLException {
+        String expQuery = """
+                    INSERT INTO KanalGrup (idKanal, jumlahMember)
+                    VALUES (?, ?)
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(expQuery);
+        ps.setInt(1, getIdKanal());
+        ps.setInt(2, getJumlahMember());
+        MainApp.konektor.updateTable(ps);
+    }
 
     // private String[] roles = { "Owner", "Manager", "Editor", "Editor Limited",
     // "Subtitle Editor", "Viewer" };
