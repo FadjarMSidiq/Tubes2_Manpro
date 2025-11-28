@@ -41,4 +41,8 @@ public class Controller {
         return user != null;
     }
 
+    public boolean login(String email, String password) throws SQLException {
+        user = User.login(email, password);
+        return user != null;
+    }
 }

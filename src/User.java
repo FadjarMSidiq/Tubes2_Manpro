@@ -86,6 +86,7 @@ public class User {
         }
         return subs;
     }
+
     
     private static ResultSet importUser(String email, String passwordPengguna) throws SQLException {
         String query = """
@@ -136,7 +137,15 @@ public class User {
         return new User(rs.getInt(1), email, namaPengguna);
     }
 
-    private static boolean checkRegister(String email) throws SQLException {
+    public static User login(String email, String passwordPengguna) throws SQLException {
+        ResultSet rs = importUser(email, passwordPengguna);
+        if (rs.next()) {
+            return new User(rs.getInt(1), rs.getString(2), rs.getString(3));
+        }
+        return null;
+    }
+
+     private static boolean checkRegister(String email) throws SQLException {
         String query = """
                     SELECT 
                         p.idPengguna
