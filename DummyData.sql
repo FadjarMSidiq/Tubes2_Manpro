@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS KanalIndividu;
 DROP TABLE IF EXISTS Kanal;
 DROP TABLE IF EXISTS Pengguna;
 
-CREATE TABLE Pengguna (
+CREATE TABLE Pengguna (--tabel penggun
     idPengguna INT IDENTITY (1, 1) PRIMARY KEY,
     namaPengguna VARCHAR(20) NOT NULL,
     passwordPengguna VARCHAR(16) NOT NULL,
