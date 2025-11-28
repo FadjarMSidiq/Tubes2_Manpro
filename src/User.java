@@ -60,6 +60,32 @@ public class User {
         return idPengguna;
     }
 
+    private ArrayList<Channel> importSubscribed() throws SQLException {
+        ArrayList<Channel> subs = new ArrayList<>();
+        String query = """
+                    SELECT 
+                        k.idKanal,
+                        k.namaKanal,
+                        k.deskripsiKanal,
+                        k.tanggalPembuatanKanal
+                    FROM
+                        (SELECT 
+                            s.idKanal
+                        FROM 
+                            Subscribe s
+                        WHERE 
+                            s.idPengguna = ?) AS listSubs
+                    INNER JOIN Kanal k ON listSubs.idKanal = k.idKanal
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1, idPengguna);    
+        ResultSet rs = MainApp.konektor.getTable(ps);
+        
+        while (rs.next()) {
+            subs.add(new ChannelIndividu(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4)));
+        }
+        return subs;
+    }
 
     
     private static ResultSet importUser(String email, String passwordPengguna) throws SQLException {
@@ -80,6 +106,35 @@ public class User {
         ps.setString(2, passwordPengguna);
         
         return MainApp.konektor.getTable(ps);
+    }
+
+    public static User register(String email, String namaPengguna, String passwordPengguna) throws SQLException {
+        if (checkRegister(email)) {
+            return null;
+        }
+
+        String query = """
+                    INSERT INTO Pengguna (
+                        Pengguna.namaPengguna, 
+                        Pengguna.passwordPengguna,
+                        Pengguna.email,
+                        Pengguna.tanggalPembuatanAkun,
+                        Pengguna. tipePengguna
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setString(1, namaPengguna);
+        ps.setString(2, passwordPengguna);
+        ps.setString(3, email);
+        ps.setDate(4, Date.valueOf(LocalDate.now()));
+        ps.setInt(5, 1);
+        MainApp.konektor.updateTable(ps);
+        
+        ResultSet rs = importUser(email, passwordPengguna);
+        rs.next();
+        
+        return new User(rs.getInt(1), email, namaPengguna);
     }
 
     public static User login(String email, String passwordPengguna) throws SQLException {
