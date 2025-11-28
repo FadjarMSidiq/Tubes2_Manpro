@@ -12,5 +12,14 @@ public class ChannelIndividu extends Channel{
         super(idKanal, channelName, channelDescription, tanggalPembuatanKanal);
     }
 
-    
+    @Override
+    public void exportChannel() throws SQLException {
+        String expQuery = """
+                    INSERT INTO KanalIndividu (idKanal)
+                    VALUES (?)
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(expQuery);
+        ps.setInt(1, getIdKanal());
+        MainApp.konektor.updateTable(ps);
+    }
 }
