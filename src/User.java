@@ -89,4 +89,52 @@ public class User {
         }
         return null;
     }
+
+     private static boolean checkRegister(String email) throws SQLException {
+        String query = """
+                    SELECT 
+                        p.idPengguna
+                    FROM 
+                        Pengguna p
+                    WHERE
+                        p.email = ?
+                """;
+
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setString(1, email);
+
+        ResultSet tempPS = MainApp.konektor.getTable(ps); 
+        return tempPS.next();
+    }
+    // public List<Video> searchVideos(String keyword) {}
+
+    // public void watchVideo(Video video) {}
+    
+    public static String getEmailbyID(int idPengguna) throws SQLException{
+        String query = """
+                            SELECT email
+                            FROM Pengguna
+                            WHERE idPengguna = ?
+                            """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1,idPengguna);
+        ResultSet rs = MainApp.konektor.getTable(ps);
+        rs.next();
+        return rs.getString(1);
+    }
+
+    public static int getIdbyEmail(String email) throws SQLException{
+        String query = """
+                            SELECT idPengguna
+                            FROM Pengguna
+                            WHERE email = ?
+                            """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setString(1,email);
+        ResultSet rs = MainApp.konektor.getTable(ps);
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        return -1;
+    }
 }
