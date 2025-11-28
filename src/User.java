@@ -1,0 +1,140 @@
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class User {
+    private int idPengguna;
+    protected String email;
+    protected String namaPengguna;
+    protected ArrayList<Channel> subscribedChannels;
+    
+    public User(String email, String namaPengguna) throws SQLException {
+        this.email = email;
+        this.namaPengguna = namaPengguna;
+        subscribedChannels = importSubscribed();
+    }
+    
+    public User(int idPengguna, String email, String namaPengguna) throws SQLException {
+        this.idPengguna = idPengguna;
+        this.email = email;
+        this.namaPengguna = namaPengguna;
+        subscribedChannels = importSubscribed();
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getNamaPengguna() {
+        return namaPengguna;
+    }
+
+    public ArrayList<Channel> getSubscribedChannels() {
+        return subscribedChannels;
+    }
+
+    public void setIdPengguna(int id){
+        this.idPengguna = id;
+    }
+    
+    public int getIdPengguna(){
+        return idPengguna;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        
+        User u = (User) o;
+        return idPengguna == u.idPengguna;
+    }
+    
+    @Override
+    public int hashCode() {
+        return idPengguna;
+    }
+
+
+    
+    private static ResultSet importUser(String email, String passwordPengguna) throws SQLException {
+        String query = """
+                    SELECT 
+                        Pengguna.idPengguna,
+                        Pengguna.email,
+                        Pengguna.namaPengguna
+                    FROM 
+                        Pengguna 
+                    WHERE 
+                        email = ? AND 
+                        passwordPengguna = ?;
+                """;
+        
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setString(1, email);
+        ps.setString(2, passwordPengguna);
+        
+        return MainApp.konektor.getTable(ps);
+    }
+
+    public static User login(String email, String passwordPengguna) throws SQLException {
+        ResultSet rs = importUser(email, passwordPengguna);
+        if (rs.next()) {
+            return new User(rs.getInt(1), rs.getString(2), rs.getString(3));
+        }
+        return null;
+    }
+
+     private static boolean checkRegister(String email) throws SQLException {
+        String query = """
+                    SELECT 
+                        p.idPengguna
+                    FROM 
+                        Pengguna p
+                    WHERE
+                        p.email = ?
+                """;
+
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setString(1, email);
+
+        ResultSet tempPS = MainApp.konektor.getTable(ps); 
+        return tempPS.next();
+    }
+    // public List<Video> searchVideos(String keyword) {}
+
+    // public void watchVideo(Video video) {}
+    
+    public static String getEmailbyID(int idPengguna) throws SQLException{
+        String query = """
+                            SELECT email
+                            FROM Pengguna
+                            WHERE idPengguna = ?
+                            """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1,idPengguna);
+        ResultSet rs = MainApp.konektor.getTable(ps);
+        rs.next();
+        return rs.getString(1);
+    }
+
+    public static int getIdbyEmail(String email) throws SQLException{
+        String query = """
+                            SELECT idPengguna
+                            FROM Pengguna
+                            WHERE email = ?
+                            """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setString(1,email);
+        ResultSet rs = MainApp.konektor.getTable(ps);
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        return -1;
+    }
+}
