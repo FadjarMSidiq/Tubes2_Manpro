@@ -65,7 +65,42 @@ public class ChannelGrup extends Channel {
     }
 
    
-    
+    public int addMember(User user, String email, int role) throws SQLException {
+        if (getTingkatAkses(user.getIdPengguna()) > 1) {
+            System.out.println("You don't have access");
+            return 1;
+        }
+
+        // Cek apakah email sudah ada
+        for (Set<Integer> members : listAkses.values()) {
+            if (members.contains(User.getIdbyEmail(email)))
+                return 2;
+        }
+        String query = """
+                    INSERT INTO Diundang (idKanal, idPengguna, tipeAkses)
+                    VALUES (?, ?, ?)
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1, getIdKanal());
+        ps.setInt(2, User.getIdbyEmail(email));
+        ps.setInt(3, role);
+        MainApp.konektor.updateTable(ps);
+
+        listAkses.get(role).add(User.getIdbyEmail(email));
+        System.out.printf("%s invited as %s\n", email, roles[role-1]);
+        changeTipePengguna(User.getIdbyEmail(email),3);
+        return 0;
+    }
+
+    // Channel
+    @Override
+    public void changeName(Scanner sc, User user) throws SQLException {
+        if (getTingkatAkses(user.getIdPengguna()) > 3) {
+            System.out.println("You dont have access");
+            return;
+        }
+        super.changeName(sc, user);
+    }
 
     @Override
     public void changeDescription(Scanner sc, User user) throws SQLException {
