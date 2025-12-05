@@ -153,6 +153,14 @@ public class User {
         return MainApp.konektor.getTable(ps);
     }
 
+    public static User login(String email, String passwordPengguna) throws SQLException {
+        ResultSet rs = importUser(email, passwordPengguna);
+        if (rs.next()) {
+            return new User(rs.getInt(1), rs.getString(2), rs.getString(3));
+        }
+        return null;
+    }
+
     public static User register(String email, String namaPengguna, String passwordPengguna) throws SQLException {
         if (checkRegister(email)) {
             return null;
@@ -182,15 +190,6 @@ public class User {
         return new User(rs.getInt(1), email, namaPengguna);
     }
 
-    public static User login(String email, String passwordPengguna) throws SQLException {
-        ResultSet rs = importUser(email, passwordPengguna);
-        if (rs.next()) {
-            return new User(rs.getInt(1), rs.getString(2), rs.getString(3));
-        }
-        return null;
-    }
-
-    
     private static boolean checkRegister(String email) throws SQLException {
         String query = """
                     SELECT 
