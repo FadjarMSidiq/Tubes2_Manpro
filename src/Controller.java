@@ -20,6 +20,27 @@ public class Controller {
         return instance;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+    
+    public Channel getBrandChannel() {
+        return brandChannel;
+    }
+
+    public VideoList getVideoList() {
+        return publicList;
+    }
+
+    public boolean register(String email, String username, String password) throws SQLException {
+        user = User.register(email, username, password);
+        return user != null;
+    }
+
     public boolean login(String email, String password) throws SQLException {
         user = User.login(email, password);
         return user != null;
