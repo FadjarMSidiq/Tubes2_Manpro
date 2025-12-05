@@ -6,6 +6,7 @@ public class MainApp {
     public static Controller controller = Controller.getInstance();
     public static ConnectDB konektor = ConnectDB.getInstance();
     public static boolean logOut = false;
+
     public static void main(String[] args) throws SQLException {
         Scanner sc = new Scanner(System.in);
         int action;
