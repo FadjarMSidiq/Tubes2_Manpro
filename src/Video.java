@@ -482,210 +482,210 @@ public class Video {
         System.out.println("You commented on this video");
     }
 
-    // public boolean sudahMenonton(User user) throws SQLException {
-    //     String query = "SELECT 1 FROM Nonton WHERE idPengguna = ? AND idVideo = ?";
-    //     PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
-    //     ps.setInt(1, user.getIdPengguna());
-    //     ps.setInt(2, this.idVideo);
-    //     ResultSet rs = MainApp.konektor.getTable(ps);
-    //     return rs.next();
-    // }
+    public boolean sudahMenonton(User user) throws SQLException {
+        String query = "SELECT 1 FROM Nonton WHERE idPengguna = ? AND idVideo = ?";
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1, user.getIdPengguna());
+        ps.setInt(2, this.idVideo);
+        ResultSet rs = MainApp.konektor.getTable(ps);
+        return rs.next();
+    }
 
-    // public void insertOrUpdateNonton(User user) throws SQLException {
-    //     if (user == null) {
-    //         return;
-    //     }
-    //     if (sudahMenonton(user)) {
-    //         String updateQuery = """
-    //                     UPDATE Nonton
-    //                     SET tanggal_nonton = ?
-    //                     WHERE idPengguna = ? AND idVideo = ?
-    //                 """;
-    //         PreparedStatement updatePs = MainApp.konektor.getConnection().prepareStatement(updateQuery);
-    //         updatePs.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
-    //         updatePs.setInt(2, user.getIdPengguna());
-    //         updatePs.setInt(3, this.idVideo);
-    //         MainApp.konektor.updateTable(updatePs);
-    //     } else {
-    //         String insertQuery = """
-    //                     INSERT INTO Nonton (idPengguna, idVideo, tanggal_nonton)
-    //                     VALUES (?, ?, ?)
-    //                 """;
-    //         PreparedStatement insertPs = MainApp.konektor.getConnection().prepareStatement(insertQuery);
-    //         insertPs.setInt(1, user.getIdPengguna());
-    //         insertPs.setInt(2, this.idVideo);
-    //         insertPs.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
-    //         MainApp.konektor.updateTable(insertPs);
-    //     }
-    // }
+    public void insertOrUpdateNonton(User user) throws SQLException {
+        if (user == null) {
+            return;
+        }
+        if (sudahMenonton(user)) {
+            String updateQuery = """
+                        UPDATE Nonton
+                        SET tanggal_nonton = ?
+                        WHERE idPengguna = ? AND idVideo = ?
+                    """;
+            PreparedStatement updatePs = MainApp.konektor.getConnection().prepareStatement(updateQuery);
+            updatePs.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
+            updatePs.setInt(2, user.getIdPengguna());
+            updatePs.setInt(3, this.idVideo);
+            MainApp.konektor.updateTable(updatePs);
+        } else {
+            String insertQuery = """
+                        INSERT INTO Nonton (idPengguna, idVideo, tanggal_nonton)
+                        VALUES (?, ?, ?)
+                    """;
+            PreparedStatement insertPs = MainApp.konektor.getConnection().prepareStatement(insertQuery);
+            insertPs.setInt(1, user.getIdPengguna());
+            insertPs.setInt(2, this.idVideo);
+            insertPs.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
+            MainApp.konektor.updateTable(insertPs);
+        }
+    }
 
-    // public void play(User user, Scanner sc) throws SQLException {
-    //     // masukkan ke Nonton
-    //     insertOrUpdateNonton(user);
+    public void play(User user, Scanner sc) throws SQLException {
+        // masukkan ke Nonton
+        insertOrUpdateNonton(user);
 
-    //     try {
-    //         Desktop.getDesktop().browse(new URI(videoPath));
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
+        try {
+            Desktop.getDesktop().browse(new URI(videoPath));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-    //     int check = -1;
-    //     while (true) {
-    //         // Simulate video screen
-    //         System.out.println("#####################################");
-    //         System.out.printf("# Now Playing: %-25s #\n", videoNama);
-    //         System.out.println("#####################################");
-    //         System.out.println("1. Like");
-    //         System.out.println("2. Dislike");
-    //         System.out.println("3. Comment");
-    //         System.out.println("4. Subscribe Channel");
-    //         System.out.println("5. See Detail");
-    //         System.out.println("6. Back");
-    //         System.out.print("Choose action: ");
-    //         String choice = sc.nextLine();
-    //         System.out.println();
+        int check = -1;
+        while (true) {
+            // Simulate video screen
+            System.out.println("#####################################");
+            System.out.printf("# Now Playing: %-25s #\n", videoNama);
+            System.out.println("#####################################");
+            System.out.println("1. Like");
+            System.out.println("2. Dislike");
+            System.out.println("3. Comment");
+            System.out.println("4. Subscribe Channel");
+            System.out.println("5. See Detail");
+            System.out.println("6. Back");
+            System.out.print("Choose action: ");
+            String choice = sc.nextLine();
+            System.out.println();
 
-    //         switch (choice) {
-    //             case "1":
-    //                 check = like(user);
-    //                 if (check == 0) {
-    //                     System.out.println("You liked the video.");
-    //                 } else if (check == 1) {
-    //                     System.out.println("Please log in or register first!");
-    //                 } else {
-    //                     System.out.println("You already like this video!");
-    //                 }
-    //                 break;
-    //             case "2":
-    //                 check = dislike(user);
-    //                 if (check == 0) {
-    //                     System.out.println("You disliked the video.");
-    //                 } else if (check == 1) {
-    //                     System.out.println("Please log in or register first!");
-    //                 } else {
-    //                     System.out.println("You already dislike this video!");
-    //                 }
-    //                 break;
-    //             case "3":
-    //                 if (user != null) {
-    //                     System.out.print("Enter your comment: ");
-    //                     String isiKomen = sc.nextLine();
-    //                     Comment(user, isiKomen);
-    //                 } else {
-    //                     System.out.println("Please log in or register first!");
-    //                 }
-    //                 break;
-    //             case "4":
-    //                 if (user == null) {
-    //                     System.out.println("Please log in or register first!");
-    //                 } else if (MainApp.controller.getChannel().getIdKanal() == idKanal) {
-    //                     System.out.println("You can't subscribe your own channel");
-    //                 } else {
-    //                     user.subscribe(idKanal, user);
-    //                 }
-    //                 break;
-    //             case "5":
-    //                 showDetails(sc);
-    //                 break;
-    //             case "6":
-    //                 System.out.println("Exiting video...");
-    //                 return;
-    //             default:
-    //                 System.out.println("Invalid choice.");
-    //         }
-    //         System.out.println(); // for spacing
-    //     }
-    // }
+            switch (choice) {
+                case "1":
+                    check = like(user);
+                    if (check == 0) {
+                        System.out.println("You liked the video.");
+                    } else if (check == 1) {
+                        System.out.println("Please log in or register first!");
+                    } else {
+                        System.out.println("You already like this video!");
+                    }
+                    break;
+                case "2":
+                    check = dislike(user);
+                    if (check == 0) {
+                        System.out.println("You disliked the video.");
+                    } else if (check == 1) {
+                        System.out.println("Please log in or register first!");
+                    } else {
+                        System.out.println("You already dislike this video!");
+                    }
+                    break;
+                case "3":
+                    if (user != null) {
+                        System.out.print("Enter your comment: ");
+                        String isiKomen = sc.nextLine();
+                        Comment(user, isiKomen);
+                    } else {
+                        System.out.println("Please log in or register first!");
+                    }
+                    break;
+                case "4":
+                    if (user == null) {
+                        System.out.println("Please log in or register first!");
+                    } else if (MainApp.controller.getChannel().getIdKanal() == idKanal) {
+                        System.out.println("You can't subscribe your own channel");
+                    } else {
+                        user.subscribe(idKanal, user);
+                    }
+                    break;
+                case "5":
+                    showDetails(sc);
+                    break;
+                case "6":
+                    System.out.println("Exiting video...");
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+            System.out.println(); // for spacing
+        }
+    }
 
-    // public void deleteVideo(User user) throws SQLException {
-    //     // Soft delete: update status video ke 'B'
-    //     String query = """
-    //                 UPDATE Video
-    //                 SET statusVideo = 'B'
-    //                 WHERE idVideo = ?
-    //             """;
-    //     PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
-    //     ps.setInt(1, this.idVideo);
-    //     MainApp.konektor.updateTable(ps);
+    public void deleteVideo(User user) throws SQLException {
+        // Soft delete: update status video ke 'B'
+        String query = """
+                    UPDATE Video
+                    SET statusVideo = 'B'
+                    WHERE idVideo = ?
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1, this.idVideo);
+        MainApp.konektor.updateTable(ps);
 
-    //     // Insert ke tabel Hapus
-    //     query = """
-    //                 INSERT INTO Hapus (idVideo, idPengguna, idKanal, hapus_tanggal)
-    //                 VALUES (?, ?, ?, ?)
-    //             """;
-    //     ps = MainApp.konektor.getConnection().prepareStatement(query);
-    //     ps.setInt(1, this.idVideo);
-    //     ps.setInt(2, user.getIdPengguna());
-    //     ps.setInt(3, getIdKanal());
-    //     ps.setDate(4, new java.sql.Date(System.currentTimeMillis()));
-    //     MainApp.konektor.updateTable(ps);
+        // Insert ke tabel Hapus
+        query = """
+                    INSERT INTO Hapus (idVideo, idPengguna, idKanal, hapus_tanggal)
+                    VALUES (?, ?, ?, ?)
+                """;
+        ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1, this.idVideo);
+        ps.setInt(2, user.getIdPengguna());
+        ps.setInt(3, getIdKanal());
+        ps.setDate(4, new java.sql.Date(System.currentTimeMillis()));
+        MainApp.konektor.updateTable(ps);
 
-    //     System.out.printf("Video \"%s\" succesfully deleted by %s\n", getVideoNama(), user.getNamaPengguna());
-    // }
+        System.out.printf("Video \"%s\" succesfully deleted by %s\n", getVideoNama(), user.getNamaPengguna());
+    }
 
-    // public void exportDBVideo() throws SQLException {
-    //     // Simpan ke database Video
-    //     String insertVideoQuery = """
-    //                 INSERT INTO Video (videoNama, videoDurasi, videoDeskripsi, videoSubtitle, videoPath, statusVideo, idKanal)
-    //                 VALUES (?, ?, ?, ?, ?, ?, ?)
-    //             """;
+    public void exportDBVideo() throws SQLException {
+        // Simpan ke database Video
+        String insertVideoQuery = """
+                    INSERT INTO Video (videoNama, videoDurasi, videoDeskripsi, videoSubtitle, videoPath, statusVideo, idKanal)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
 
-    //     PreparedStatement psVideo = MainApp.konektor.getConnection().prepareStatement(insertVideoQuery);
-    //     psVideo.setString(1, getVideoNama());
-    //     psVideo.setInt(2, getVideoDurasi());
-    //     psVideo.setString(3, getVideoDeskripsi());
-    //     psVideo.setString(4, getvideoSubtitle());
-    //     psVideo.setString(5, getVideoPath());
-    //     psVideo.setString(6, "A");
-    //     psVideo.setInt(7, getIdKanal());
+        PreparedStatement psVideo = MainApp.konektor.getConnection().prepareStatement(insertVideoQuery);
+        psVideo.setString(1, getVideoNama());
+        psVideo.setInt(2, getVideoDurasi());
+        psVideo.setString(3, getVideoDeskripsi());
+        psVideo.setString(4, getvideoSubtitle());
+        psVideo.setString(5, getVideoPath());
+        psVideo.setString(6, "A");
+        psVideo.setInt(7, getIdKanal());
 
-    //     MainApp.konektor.updateTable(psVideo);
-    //     String query = """
-    //                 SELECT TOP 1 idVideo
-    //                 FROM Video
-    //                 ORDER BY idVideo DESC
-    //             """;
+        MainApp.konektor.updateTable(psVideo);
+        String query = """
+                    SELECT TOP 1 idVideo
+                    FROM Video
+                    ORDER BY idVideo DESC
+                """;
 
-    //     PreparedStatement cVideo = MainApp.konektor.getConnection().prepareStatement(query);
-    //     ResultSet rs = MainApp.konektor.getTable(cVideo);
+        PreparedStatement cVideo = MainApp.konektor.getConnection().prepareStatement(query);
+        ResultSet rs = MainApp.konektor.getTable(cVideo);
 
-    //     if (rs.next()) {
-    //         setIdVideo(rs.getInt("idVideo")); // Perhatikan huruf kecil semua
-    //     }
+        if (rs.next()) {
+            setIdVideo(rs.getInt("idVideo")); // Perhatikan huruf kecil semua
+        }
 
-    //     exportDBUnggahVideo();
-    // }
+        exportDBUnggahVideo();
+    }
 
-    // public void exportDBUnggahVideo() throws SQLException {
-    //     // Simpan ke tabel Unggah
-    //     String insertUnggahQuery = "INSERT INTO Unggah (idVideo, idPengguna, idKanal, unggah_tanggal) VALUES (?, ?, ?,?)";
-    //     PreparedStatement psUnggah = MainApp.konektor.getConnection().prepareStatement(insertUnggahQuery);
-    //     psUnggah.setInt(1, getIdVideo());
-    //     psUnggah.setInt(2, getIdPengguna());
-    //     psUnggah.setInt(3, getIdKanal());
-    //     psUnggah.setDate(4, new java.sql.Date(System.currentTimeMillis()));
-    //     MainApp.konektor.updateTable(psUnggah);
+    public void exportDBUnggahVideo() throws SQLException {
+        // Simpan ke tabel Unggah
+        String insertUnggahQuery = "INSERT INTO Unggah (idVideo, idPengguna, idKanal, unggah_tanggal) VALUES (?, ?, ?,?)";
+        PreparedStatement psUnggah = MainApp.konektor.getConnection().prepareStatement(insertUnggahQuery);
+        psUnggah.setInt(1, getIdVideo());
+        psUnggah.setInt(2, getIdPengguna());
+        psUnggah.setInt(3, getIdKanal());
+        psUnggah.setDate(4, new java.sql.Date(System.currentTimeMillis()));
+        MainApp.konektor.updateTable(psUnggah);
 
-    //     System.out.println("Video '" + getVideoNama() + "' uploaded and saved to database!");
-    // }
+        System.out.println("Video '" + getVideoNama() + "' uploaded and saved to database!");
+    }
 
-	// public void setVideoNama(String videoNama) {
-	// 	this.videoNama = videoNama;
-	// }
+	public void setVideoNama(String videoNama) {
+		this.videoNama = videoNama;
+	}
 
-	// public void setVideoSubtitle(String videoSubtitle) {
-	// 	this.videoSubtitle = videoSubtitle;
-	// }
+	public void setVideoSubtitle(String videoSubtitle) {
+		this.videoSubtitle = videoSubtitle;
+	}
 
-	// public void setMaker(String maker) {
-	// 	this.maker = maker;
-	// }
+	public void setMaker(String maker) {
+		this.maker = maker;
+	}
 
-    // @Override
-    // public boolean equals(Object obj) {
-    //     if (this == obj) return true;
-    //     if (obj == null || getClass() != obj.getClass()) return false;
-    //     Video video = (Video) obj;
-    //     return idVideo == video.idVideo;
-    // }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Video video = (Video) obj;
+        return idVideo == video.idVideo;
+    }
 }
