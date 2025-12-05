@@ -120,7 +120,7 @@ public class User {
     }
 
     public boolean checkSubscribed(int idKanal, User user) throws SQLException{
-        // Cek apakah user sudah subscribe channel ini
+        // Cek apakah user sudah subscribe channel in
         String cekSubscribe = "SELECT idPengguna FROM Subscribe WHERE idPengguna = ? AND idKanal = ?";
         PreparedStatement checkPs = MainApp.konektor.getConnection().prepareStatement(cekSubscribe);
         checkPs.setInt(1, idPengguna);
@@ -161,7 +161,35 @@ public class User {
         return null;
     }
 
-    
+    public static User register(String email, String namaPengguna, String passwordPengguna) throws SQLException {
+        if (checkRegister(email)) {
+            return null;
+        }
+
+        String query = """
+                    INSERT INTO Pengguna (
+                        Pengguna.namaPengguna, 
+                        Pengguna.passwordPengguna,
+                        Pengguna.email,
+                        Pengguna.tanggalPembuatanAkun,
+                        Pengguna. tipePengguna
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setString(1, namaPengguna);
+        ps.setString(2, passwordPengguna);
+        ps.setString(3, email);
+        ps.setDate(4, Date.valueOf(LocalDate.now()));
+        ps.setInt(5, 1);
+        MainApp.konektor.updateTable(ps);
+        
+        ResultSet rs = importUser(email, passwordPengguna);
+        rs.next();
+        
+        return new User(rs.getInt(1), email, namaPengguna);
+    }
+
     private static boolean checkRegister(String email) throws SQLException {
         String query = """
                     SELECT 
