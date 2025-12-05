@@ -863,4 +863,8 @@ public class MainApp {
         }
         System.out.println("==================");
     }
+
+    public void getCurrentUser() {
+        // return user;
+    }
 }
