@@ -120,7 +120,7 @@ public class User {
     }
 
     public boolean checkSubscribed(int idKanal, User user) throws SQLException{
-        // Cek apakah user sudah subscribe channel in
+        // Cek apakah user sudah subscribe channel ini
         String cekSubscribe = "SELECT idPengguna FROM Subscribe WHERE idPengguna = ? AND idKanal = ?";
         PreparedStatement checkPs = MainApp.konektor.getConnection().prepareStatement(cekSubscribe);
         checkPs.setInt(1, idPengguna);
