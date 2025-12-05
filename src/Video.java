@@ -25,7 +25,7 @@ public class Video {
     private List<User> likes = new ArrayList<>();
     private List<User> dislikes = new ArrayList<>();
     private List<User> viewers = new ArrayList<>();
-    protected List<Comment> commentList = new ArrayList<>(); // gtni
+    protected List<Comment> commentList = new ArrayList<>()
 
     public Video(String videoNama, int videoDurasi, String videoDeskripsi, String videoSubtitle, String videoPath,
             int idPengguna, int idKanal) {
