@@ -79,6 +79,57 @@ public class ChannelGrup extends Channel {
         }
     }
 
+    public int changeRole(User user, String email, int newRole) throws SQLException {
+        if (getTingkatAkses(user.getIdPengguna()) > 1) {
+            System.out.println("You don't have access");
+            return 1;
+        }
+        int berhasil = removeMember(user, email);
+        if (berhasil == 0) {
+            addMember(user, email,newRole);
+            return 0;
+        }
+        return 2;
+        
+    }
+
+    public int removeMember(User user, String email) throws SQLException {
+        if (getTingkatAkses(user.getIdPengguna()) > 1) {
+            System.out.println("You don't have access");
+            return 1;
+        }
+        for (int role = 1; role <= 6; role++) {
+            int idPengguna = User.getIdbyEmail(email);
+            if (idPengguna != -1 && listAkses.get(role).contains(idPengguna)) {
+                listAkses.get(role).remove(idPengguna);
+
+                String query = """
+                            DELETE FROM Diundang
+                            WHERE idKanal = ? AND idPengguna = ? AND tipeAkses = ?
+                        """;
+                PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+                ps.setInt(1, getIdKanal());
+                ps.setInt(2, idPengguna);
+                ps.setInt(3, role);
+                MainApp.konektor.updateTable(ps);
+                changeTipePengguna(User.getIdbyEmail(email),1);
+                return 0;
+            }
+        }
+        return 2;
+    }
+
+     public void changeTipePengguna(int idP,int newTipe) throws SQLException {
+        String query = """
+                            UPDATE Pengguna
+                            SET TipePengguna = ?
+                            WHERE idPengguna = ?
+                        """;
+                PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+                ps.setInt(1, newTipe);
+                ps.setInt(2, idP);
+                MainApp.konektor.updateTable(ps);
+    }
    
     public int addMember(User user, String email, int role) throws SQLException {
         if (getTingkatAkses(user.getIdPengguna()) > 1) {
@@ -105,6 +156,71 @@ public class ChannelGrup extends Channel {
         System.out.printf("%s invited as %s\n", email, roles[role-1]);
         changeTipePengguna(User.getIdbyEmail(email),3);
         return 0;
+    }
+
+    public void importGroupAkses() throws SQLException {
+        initAkses();
+        String inviteQuery = """
+                    SELECT idPengguna, tipeAkses
+                    FROM Diundang d
+                    WHERE d.idKanal = ?
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(inviteQuery);
+        ps.setInt(1, getIdKanal());
+        ResultSet rs = MainApp.konektor.getTable(ps);
+
+        while (rs.next()) {
+            int idPengguna = rs.getInt("idPengguna");
+            int tipeAkses = rs.getInt("tipeAkses");
+            if (listAkses.containsKey(tipeAkses)) {
+                listAkses.get(tipeAkses).add(idPengguna);
+            }
+        }
+    }
+
+    // a. Manajer: melihat semua data kanal, mengelola permission (hak akses) para
+    // anggota
+    // grup, edit data kanal, upload - edit (title-subtitle-tumbnail) – publish –
+    // hapus/take down
+    // konten, melihat semua konten dan laporan/dashboard
+
+    // b. Editor: melihat semua data kanal, edit data kanal, upload-edit
+    // (title-subtitle-tumbnail)
+    // -publish-hapus konten, melihat semua konten dan laporan/dashboard
+
+    // c. Editor (Limited): melihat semua data kanal, upload-edit
+    // (title-subtitle-tumbnail) -
+    // publish-hapus konten miliknya sendiri, melihat semua konten dan
+    // laporan/dashboard
+
+    // d. Subtitle Editor: edit subtile dari semua video, melihat semua konten dan
+    // laporan/dashboard
+
+    // e. Viewer: melihat semua konten dan laporan/dashboard
+
+    @Override
+    public void uploadVideo(Video video) throws SQLException {// Owner, Manajer, Editor
+        if (getTingkatAkses(video.getIdPengguna()) > 4) {
+            System.out.println("You dont have access");
+            return;
+        }
+        super.uploadVideo(video);
+    }
+
+    @Override
+    public void removeVideo(User user, int idx) throws SQLException {// Owner, Manajer, Editor
+
+        if (getTingkatAkses(user.getIdPengguna()) > 4) {
+            System.out.println("You dont have access");
+            return;
+        }
+        Video vid = uploaded.getVideo(idx);
+        if (vid.getIdPengguna() != user.getIdPengguna() && getTingkatAkses(user.getIdPengguna()) == 4) {
+            // jika yg upload beda dengan yg mau hapus && yang hapus adalah editor Limited
+            System.out.println("You dont have access");
+            return;
+        }
+        super.removeVideo(user, idx);
     }
 
     // Channel
@@ -185,4 +301,16 @@ public class ChannelGrup extends Channel {
         }
         super.changeVideoDescription(sc, video, user);
     }
+
+    public int getTingkatAkses(int idMember) throws SQLException {
+        importGroupAkses();
+        for (int index = 1; index <= 6; index++) {
+            if (listAkses.get(index).contains(idMember)) {
+                return index;
+            }
+        }
+
+        return 6;
+    }
+
 }

@@ -86,7 +86,52 @@ public class User {
         }
         return subs;
     }
+    
+    public void subscribe(int idKanal, User user) throws SQLException {
+        if (checkSubscribed(idKanal, user)) {
+            return;
+        }
+        
+        String query = "INSERT INTO Subscribe (idPengguna, idKanal, tanggal_subscribe) VALUES (?, ?, ?)";
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1, idPengguna);
+        ps.setInt(2, idKanal);
+        ps.setDate(3, Date.valueOf(LocalDate.now()));
+        MainApp.konektor.updateTable(ps);
+        subscribedChannels.add(Channel.importChannel(idKanal));
+        System.out.println("Subscribe successful");
+    }
 
+    public void unsubscribe(int idx, Channel channel) throws SQLException {
+        subscribedChannels.remove(idx);
+        channel.subscribers.remove(this);
+        String query = """
+                    DELETE FROM Subscribe
+                    WHERE
+                        idPengguna = ? AND
+                        idKanal = ?
+                """;
+        PreparedStatement ps = MainApp.konektor.getConnection().prepareStatement(query);
+        ps.setInt(1, idPengguna);
+        ps.setInt(2, channel.getIdKanal());
+        MainApp.konektor.updateTable(ps);
+
+        System.out.printf("#%s Removed from Suscribed\n", channel.namaKanal);
+    }
+
+    public boolean checkSubscribed(int idKanal, User user) throws SQLException{
+        // Cek apakah user sudah subscribe channel ini
+        String cekSubscribe = "SELECT idPengguna FROM Subscribe WHERE idPengguna = ? AND idKanal = ?";
+        PreparedStatement checkPs = MainApp.konektor.getConnection().prepareStatement(cekSubscribe);
+        checkPs.setInt(1, idPengguna);
+        checkPs.setInt(2, idKanal);
+        ResultSet rs = checkPs.executeQuery();
+
+        if (rs.next()) {
+            return true;
+        }
+        return false;
+    }
     
     private static ResultSet importUser(String email, String passwordPengguna) throws SQLException {
         String query = """
@@ -145,7 +190,8 @@ public class User {
         return null;
     }
 
-     private static boolean checkRegister(String email) throws SQLException {
+    
+    private static boolean checkRegister(String email) throws SQLException {
         String query = """
                     SELECT 
                         p.idPengguna
